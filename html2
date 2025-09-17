@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MoodyGames</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1a0033, #001133);
+      color: #eee;
+      text-align: center;
+    }
+    header {
+      padding: 20px;
+      background: #0b0f17;
+      color: #4cc9f0;
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px #7b2cbf;
+    }
+    .game-section {
+      margin: 20px;
+      padding: 20px;
+      border-radius: 15px;
+      background: #101826cc;
+      box-shadow: 0 0 20px #4cc9f088;
+    }
+    iframe {
+      width: 90%;
+      height: 500px;
+      border: none;
+      border-radius: 10px;
+    }
+    .btn {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 12px;
+      background: #4cc9f0;
+      color: #0b0f17;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn:hover {
+      background: #7b2cbf;
+      color: #fff;
+      transform: scale(1.05);
+    }
+    canvas {
+      background: #111;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>🎮 MoodyGames 🎮</header>
+
+  <!-- Snake Game -->
+  <div class="game-section">
+    <h2>Snake</h2>
+    <canvas id="snake" width="400" height="400"></canvas><br>
+    <button class="btn" onclick="startSnake()">Start Snake</button>
+  </div>
+
+  <!-- Embedded Game 1 -->
+  <div class="game-section">
+    <h2>Deadshot</h2>
+    <iframe src="https://example.com/deadshot"></iframe><br>
+    <button class="btn" onclick="openFullscreen(this.previousElementSibling)">Fullscreen</button>
+    <button class="btn" onclick="openInBlank('https://example.com/deadshot')">Open in about:blank</button>
+  </div>
+
+  <!-- Embedded Game 2 -->
+  <div class="game-section">
+    <h2>Gamastat</h2>
+    <iframe src="https://moodygames12.github.io/gamastat/index.html"></iframe><br>
+    <button class="btn" onclick="openFullscreen(this.previousElementSibling)">Fullscreen</button>
+    <button class="btn" onclick="openInBlank('https://moodygames12.github.io/gamastat/index.html')">Open in about:blank</button>
+  </div>
+
+  <script>
+    // Fullscreen function
+    function openFullscreen(el) {
+      if (el.requestFullscreen) {
+        el.requestFullscreen();
+      } else if (el.mozRequestFullScreen) {
+        el.mozRequestFullScreen();
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+      }
+    }
+
+    // Open in about:blank
+    function openInBlank(url) {
+      const newWin = window.open("about:blank", "_blank");
+      newWin.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`);
+    }
+
+    // Snake game
+    let ctx, box = 20, snake, food, d, game;
+    function startSnake() {
+      clearInterval(game);
+      let canvas = document.getElementById("snake");
+      ctx = canvas.getContext("2d");
+      snake = [{x: 9 * box, y: 10 * box}];
+      food = {
+        x: Math.floor(Math.random() * 19) * box,
+        y: Math.floor(Math.random() * 19) * box
+      };
+      d = null;
+      document.addEventListener("keydown", direction);
+      game = setInterval(draw, 100);
+    }
+    function direction(event) {
+      if (event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+      else if (event.keyCode == 38 && d != "DOWN") d = "UP";
+      else if (event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+      else if (event.keyCode == 40 && d != "UP") d = "DOWN";
+    }
+    function draw() {
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0,0,400,400);
+      for (let i=0; i<snake.length; i++) {
+        ctx.fillStyle = (i==0) ? "#4cc9f0" : "#7b2cbf";
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
+      ctx.fillStyle = "#eee";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      let snakeX = snake[0].x;
+      let snakeY = snake[0].y;
+      if (d == "LEFT") snakeX -= box;
+      if (d == "UP") snakeY -= box;
+      if (d == "RIGHT") snakeX += box;
+      if (d == "DOWN") snakeY += box;
+
+      if (snakeX == food.x && snakeY == food.y) {
+        food = {
+          x: Math.floor(Math.random() * 19) * box,
+          y: Math.floor(Math.random() * 19) * box
+        };
+      } else {
+        snake.pop();
+      }
+      let newHead = {x: snakeX, y: snakeY};
+      if (snakeX < 0 || snakeY < 0 || snakeX >= 400 || snakeY >= 400 || collision(newHead, snake)) {
+        clearInterval(game);
+        alert("Game Over!");
+      }
+      snake.unshift(newHead);
+    }
+    function collision(head, array) {
+      for (let i=0; i<array.length; i++) {
+        if (head.x == array[i].x && head.y == array[i].y) {
+          return true;
+        }
+      }
+      return false;
+    }
+  </script>
+</body>
+</html>
